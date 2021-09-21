@@ -5,27 +5,34 @@ using TweetBook.Contracts;
 using TweetBook.Contracts.v1.Requests;
 using TweetBook.Contracts.v1.Responses;
 using TweetBook.Domain;
+using System.Linq;
+using TweetBook.Services;
 
 namespace TweetBook.Controllers
 {
     public class PostsController : Controller
     {
-        private List<Post> _posts;
-
-        public PostsController()
+        private readonly IPostService _postService;
+        public PostsController(IPostService postService)
         {
-            _posts = new List<Post>();
-
-            for (int i = 0; i < 5; i++)
-            {
-                _posts.Add(new Post() { Id = Guid.NewGuid().ToString()});
-            }
+            _postService = postService;
         }
 
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public IActionResult GetAll()
         {
-            return Ok(_posts);
+            return Ok(_postService.GetPosts());
+        }
+
+        [HttpGet(ApiRoutes.Posts.Get)]
+        public IActionResult Get([FromRoute]Guid postId)
+        {
+            var post = _postService.GetPostById(postId);
+
+            if(post == null)
+                return NotFound();
+
+            return Ok(post);
         }
 
         [HttpPost(ApiRoutes.Posts.Create)]
@@ -33,20 +40,19 @@ namespace TweetBook.Controllers
         {
             var post = new Post() { Id = postRequest.Id };
 
-            if (string.IsNullOrEmpty(post.Id))
-                post.Id = Guid.NewGuid().ToString();
+            if (post.Id != null)
+                post.Id = Guid.NewGuid();
 
-            _posts.Add(post);
+            _postService.GetPosts().Add(post); 
 
             var baseUrl = $"{Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
-            var fullUrl = $"{baseUrl}/{ApiRoutes.Posts.Get.Replace("{postId}",post.Id)}";
+            var fullUrl = $"{baseUrl}/{ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString())}";
 
-            var postResponse = new CreatePostResponse() { Id = post.Id };
-
+            var postResponse = new CreatePostResponse() { Id = post.Id, Name = post.Name};
+ 
             return Created(fullUrl, postResponse);
         }
     }
 
-    
+
 }
- 

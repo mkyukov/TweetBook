@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TweetBook.Data;
+using TweetBook.Services;
 
 namespace TweetBook.Installers
 {
@@ -17,9 +18,11 @@ namespace TweetBook.Installers
         {
             services.AddDbContext<DataContext>(options =>
                options.UseSqlite(
-                   config.GetConnectionString("DefaultConnection")));
+                   config.GetConnectionString("DefaultC onnection")));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<DataContext>();
+
+            services.AddSingleton<IPostService, PostService>();
         }
     }
 }
