@@ -18,11 +18,11 @@ namespace TweetBook.Installers
         {
             services.AddDbContext<DataContext>(options =>
                options.UseSqlite(
-                   config.GetConnectionString("DefaultC onnection")));
+                   config.GetConnectionString("DefaultConnection")));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<DataContext>();
 
-            services.AddSingleton<IPostService, PostService>();
+            services.AddScoped<IPostService, PostService>();
         }
     }
 }
