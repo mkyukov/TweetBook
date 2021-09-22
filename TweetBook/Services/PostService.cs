@@ -24,12 +24,25 @@ namespace TweetBook.Services
 
         public Post GetPostById(Guid postId)
         {
-            return _posts.FirstOrDefault(x=>x.Id == postId);
+            return _posts.FirstOrDefault(x => x.Id == postId);
         }
 
         public List<Post> GetPosts()
         {
             return _posts;
+        }
+
+        public bool UpdatePost(Post postToUpdate)
+        {
+            var post = GetPostById(postToUpdate.Id);
+
+            if(post == null) 
+                return false;
+
+            var index = _posts.FindIndex(x=>x.Id == postToUpdate.Id);
+            _posts[index] = postToUpdate;
+
+            return true;
         }
     }
 }

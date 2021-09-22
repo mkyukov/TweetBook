@@ -25,14 +25,31 @@ namespace TweetBook.Controllers
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
-        public IActionResult Get([FromRoute]Guid postId)
+        public IActionResult Get([FromRoute] Guid postId)
         {
             var post = _postService.GetPostById(postId);
 
-            if(post == null)
+            if (post == null)
                 return NotFound();
 
             return Ok(post);
+        }
+
+        [HttpPut(ApiRoutes.Posts.Update)]
+        public IActionResult Update([FromRoute] Guid postId, [FromBody] UpdatePostRequest request)
+        {
+            var post = new Post()
+            {
+                Id = postId,
+                Name = request.Name
+            };
+
+            var updated = _postService.UpdatePost(post);
+
+            if (updated)
+                return Ok();
+
+            return NotFound();
         }
 
         [HttpPost(ApiRoutes.Posts.Create)]
@@ -43,13 +60,13 @@ namespace TweetBook.Controllers
             if (post.Id != null)
                 post.Id = Guid.NewGuid();
 
-            _postService.GetPosts().Add(post); 
+            _postService.GetPosts().Add(post);
 
             var baseUrl = $"{Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var fullUrl = $"{baseUrl}/{ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString())}";
 
-            var postResponse = new CreatePostResponse() { Id = post.Id, Name = post.Name};
- 
+            var postResponse = new CreatePostResponse() { Id = post.Id, Name = post.Name };
+
             return Created(fullUrl, postResponse);
         }
     }
