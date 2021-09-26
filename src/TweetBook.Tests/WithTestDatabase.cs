@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using TweetBook.Data;
+using TweetBook.Domain;
 
 namespace TweetBook.Tests
 {
@@ -19,16 +20,29 @@ namespace TweetBook.Tests
                 {
                     await context.Database.EnsureCreatedAsync();
                     // PrepareTestDatabase(context);
+                    await SeedInMemDb(context);
                     await testFunc(context);
                 }
                 catch (Exception e)
                 {
                     throw e;
                 }
-                finally
+            }
+        }
+
+        private static async Task SeedInMemDb(DataContext context)
+        {
+            try
+            {
+                for (int i = 0; i < 5; i++)
                 {
-                    // CleanupTestDatabase(context);
+                    await context.Posts.AddAsync(new Post() { Name = $"Test post #{i}" });
                 }
+                await context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
     }
