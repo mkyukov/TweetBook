@@ -19,7 +19,6 @@ namespace TweetBook.Tests
                 try
                 {
                     await context.Database.EnsureCreatedAsync();
-                    // PrepareTestDatabase(context);
                     await SeedInMemDb(context);
                     await testFunc(context);
                 }
